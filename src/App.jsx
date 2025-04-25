@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/App.jsx
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';

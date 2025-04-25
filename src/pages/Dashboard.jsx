@@ -16,50 +16,18 @@ import axios from 'axios';
 
 const colors = ['#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
 
-interface ProtocolEvent {
-  name: string;
-  day?: number;
-  dayStart?: number;
-  dayEnd?: number;
-  hoursAfterImplantRemovalStart?: number;
-  hoursAfterImplantRemovalEnd?: number;
-}
-
-const protocolEvents: ProtocolEvent[] = [
+const protocolEvents = [
   { name: 'Colocação do dispositivo + Estradiol', day: 0 },
   { name: 'Prostaglandina (PGF2α) + eCG (se utilizado)', dayStart: 7, dayEnd: 8 },
   { name: 'Retirada do dispositivo + Nova dose de Estradiol', dayStart: 9, dayEnd: 10 },
   { name: 'IATF', dayStart: 10, dayEnd: 11, hoursAfterImplantRemovalStart: 48, hoursAfterImplantRemovalEnd: 56 },
 ];
 
-interface ProtocolData {
-  id: string;
-  name: string;
-  startDate?: string;
-  notifications?: boolean;
-  implantRemovalDate?: string;
-}
-
-interface AnimalStatsData {
-  total_animals: number;
-  pregnant_animals: number;
-}
-
-interface ProtocolStatsItem {
-  name: string;
-  total: string | null;
-  pregnantCount: number | null;
-}
-
-interface ProtocolStatsResponse {
-  stats: ProtocolStatsItem[];
-}
-
 const Dashboard = () => {
-  const [animals, setAnimals] = useState<any[]>([]);
-  const [protocols, setProtocols] = useState<ProtocolData[]>([]);
-  const [pregnancySuccessRate, setPregnancySuccessRate] = useState<any[]>([]);
-  const [pregnancyRateByProtocol, setPregnancyRateByProtocol] = useState<any[]>([]);
+  const [animals, setAnimals] = useState([]);
+  const [protocols, setProtocols] = useState([]);
+  const [pregnancySuccessRate, setPregnancySuccessRate] = useState([]);
+  const [pregnancyRateByProtocol, setPregnancyRateByProtocol] = useState([]);
   const [nearbyEventsCount, setNearbyEventsCount] = useState(0);
 
   const url = import.meta.env.VITE_ENDERECO_API;
@@ -73,10 +41,10 @@ const Dashboard = () => {
           animalStatsRes,
           protocolStatsRes,
         ] = await Promise.all([
-          axios.get<any[]>(`${url}/animals`),
-          axios.get<ProtocolData[]>(`${url}/protocols`),
-          axios.get<AnimalStatsData>(`${url}/animals/stats`),
-          axios.get<ProtocolStatsResponse>(`${url}/protocols/stats`),
+          axios.get(`${url}/animals`),
+          axios.get(`${url}/protocols`),
+          axios.get(`${url}/animals/stats`),
+          axios.get(`${url}/protocols/stats`),
         ]);
 
         setAnimals(animalRes.data);
@@ -107,7 +75,7 @@ const Dashboard = () => {
     fetchData();
   }, [url]);
 
-  const calculateNearbyEvents = (protocolsData: ProtocolData[]) => {
+  const calculateNearbyEvents = (protocolsData) => {
     const today = new Date();
     let totalNearbyEvents = 0;
 

@@ -1,22 +1,11 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, X } from 'lucide-react';
 import axios from 'axios';
-
-type Animal = {
-  id: string;
-  tagNumber: string;
-  name: string;
-  breed: string;
-  weight: string;
-  age: string;
-  reproductiveHistory: string;
-  imageUrl?: string;
-};
 
 const API_URL = 'http://localhost:3000/api/animals'; // Altere se necessário
 
 const AnimalRegistration = () => {
-  const [animals, setAnimals] = useState<Animal[]>([]);
+  const [animals, setAnimals] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -39,7 +28,7 @@ const AnimalRegistration = () => {
     fetchAnimals();
   }, []);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newAnimal = {
@@ -62,7 +51,7 @@ const AnimalRegistration = () => {
     fetchAnimals();
   };
 
-  const handleEdit = (animal: Animal) => {
+  const handleEdit = (animal) => {
     setTagNumber(animal.tagNumber);
     setName(animal.name);
     setBreed(animal.breed);
@@ -75,7 +64,7 @@ const AnimalRegistration = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id) => {
     await axios.delete(`${API_URL}/${id}`);
     fetchAnimals();
   };
@@ -94,7 +83,7 @@ const AnimalRegistration = () => {
   };
   const filteredAnimals = animals.filter(animal => {
     if (!animal) {
-      return false; 
+      return false;
     }
     return (
       (animal.name && typeof animal.name === 'string' && animal.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
