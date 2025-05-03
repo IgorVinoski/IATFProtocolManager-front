@@ -24,7 +24,7 @@ const Sidebar = () => {
           className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}
         >
           <Squircle size={20} />
-          Animal Registration
+          Cadastro de animais
         </NavLink>
         <NavLink 
           to="/protocols" 
@@ -38,7 +38,7 @@ const Sidebar = () => {
           className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}
         >
           <CalendarDays size={20} />
-          Monitoring
+          Monitoramento
         </NavLink>
         
         {/* <NavLink 

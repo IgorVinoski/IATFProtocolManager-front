@@ -192,7 +192,7 @@ const ProtocolRegistration = () => {
               </div>
 
               <div>
-                <label className="form-label">Start Date</label>
+                <label className="form-label">Data de início</label>
                 <input
                   type="date"
                   className="input-field"
@@ -203,7 +203,7 @@ const ProtocolRegistration = () => {
               </div>
 
               <div>
-                <label className="form-label">Hormones</label>
+                <label className="form-label">Hormônios</label>
                 <input
                   type="text"
                   className="input-field"
@@ -224,11 +224,11 @@ const ProtocolRegistration = () => {
             </div>
 
             <div className="mt-4">
-              <label className="form-label">Select Animals</label>
+              <label className="form-label">Selecione animais.</label>
               <div className="mt-2 border border-gray-300 rounded-md max-h-60 overflow-y-auto">
                 {animals.length === 0 ? (
                   <div className="p-4 text-center text-gray-500">
-                    No animals available. Please register animals first.
+                    Sem animais cadastrados. Cadastre-os primeiro.
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-200">
@@ -256,7 +256,7 @@ const ProtocolRegistration = () => {
                 )}
               </div>
               <div className="mt-2 text-sm text-gray-600">
-                {selectedAnimals.length} animals selected
+                {selectedAnimals.length} animais selecionados.
               </div>
             </div>
 
@@ -268,7 +268,7 @@ const ProtocolRegistration = () => {
                   checked={notifications}
                   onChange={(e) => setNotifications(e.target.checked)}
                 />
-                <span className="ml-2 text-gray-700">Enable notifications</span>
+                <span className="ml-2 text-gray-700">Notificação ativas</span>
               </label>
             </div>
 
@@ -327,7 +327,7 @@ const ProtocolRegistration = () => {
                     <td className="px-6 py-4 text-sm text-gray-500">{protocol.hormones}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">{protocol.bull}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {protocol.animals.length} animals
+                      {protocol.animals.length} animais
                       <span className="text-xs text-gray-400 ml-1">
                         ({protocol.animals.slice(0, 2).map(a => a.name).join(', ')}
                         {protocol.animals.length > 2 ? '...' : ''})
@@ -364,7 +364,7 @@ const ProtocolRegistration = () => {
           </div>
         ) : (
           <div className="p-6 text-center text-gray-500">
-            No protocols found. Create your first protocol by clicking the "New Protocol" button.
+            Sem protocolos cadastrados. Cadastre-os.
           </div>
         )}
       </div>
