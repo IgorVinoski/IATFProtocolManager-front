@@ -305,13 +305,13 @@ const ProtocolRegistration = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Protocol</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hormones</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bull</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Animals</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notifications</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Protocolo</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data de início</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hormônio</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Touro</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Animal</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notificação</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ação</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -337,10 +337,10 @@ const ProtocolRegistration = () => {
                       {protocol.notifications ? (
                         <span className="flex items-center text-teal-700">
                           <Check size={14} className="mr-1" />
-                          Enabled
+                          Habilitada
                         </span>
                       ) : (
-                        <span className="text-gray-500">Disabled</span>
+                        <span className="text-gray-500">Desabilitada</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
@@ -348,13 +348,13 @@ const ProtocolRegistration = () => {
                         onClick={() => handleEdit(protocol)}
                         className="text-blue-600 hover:text-blue-900 mr-3"
                       >
-                        Edit
+                        Editar
                       </button>
                       <button
                         onClick={() => handleDelete(protocol.id)}
                         className="text-red-600 hover:text-red-900"
                       >
-                        Delete
+                        Deleter
                       </button>
                     </td>
                   </tr>
