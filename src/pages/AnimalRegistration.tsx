@@ -53,9 +53,9 @@ const AnimalRegistration = () => {
     };
 
     if (isEditing) {
-      await axios.put(`${API_URL}/${editingId}`, newAnimal);
+      await axios.put(`${API_URL}/animals/${editingId}`, newAnimal);
     } else {
-      await axios.post(API_URL, newAnimal);
+      await axios.post(`${API_URL}/animals/`, newAnimal);
     }
 
     resetForm();
