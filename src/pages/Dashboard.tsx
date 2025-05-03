@@ -8,7 +8,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from 'recharts';
 import { Bell, CalendarDays, Squircle, Users } from 'lucide-react';
 import axios from 'axios';
@@ -84,8 +85,8 @@ const Dashboard = () => {
         const naoPrenhas = total_animals - pregnant_animals;
 
         setPregnancySuccessRate([
-          { name: 'Prenhas', value: pregnant_animals },
-          { name: 'Não Prenhas', value: naoPrenhas },
+          { name: 'Prenhas', value: pregnant_animals,  color: '#82ca9d'  },
+          { name: 'Não Prenhas', value: naoPrenhas, color: '#d9534f'   },
         ]);
 
         const barData = protocolStatsRes.data.stats.map((protocol) => {
@@ -220,18 +221,18 @@ const Dashboard = () => {
           <h2 className="text-lg font-semibold mb-4 text-gray-700">Taxa de Sucesso de Prenhez</h2>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie
-                data={pregnancySuccessRate}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                dataKey="value"
-                label
-              >
-                {pregnancySuccessRate.map((_, index) => (
-                  <div key={index}></div>
-                ))}
-              </Pie>
+            <Pie
+  data={pregnancySuccessRate}
+  cx="50%"
+  cy="50%"
+  outerRadius={80}
+  dataKey="value"
+  label
+>
+  {pregnancySuccessRate.map((entry, index) => (
+    <Cell key={`cell-${index}`} fill={entry.color} />
+  ))}
+</Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
