@@ -56,7 +56,7 @@ const Login = () => {
                 className="input-field"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder="seu@email.com"
               />
             </div>
             
@@ -64,7 +64,7 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="form-label">Senha</label>
                 <button type="button" className="text-sm text-blue-600 hover:text-blue-800">
-                  Forgot password?
+                  Esqueceu a senha?
                 </button>
               </div>
               <input
@@ -78,7 +78,7 @@ const Login = () => {
             </div>
             
             <button type="submit" className="w-full btn btn-primary mt-6">
-              Sign in
+              Entrar
             </button>
           </form>
           

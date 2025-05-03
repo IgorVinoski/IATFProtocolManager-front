@@ -25,7 +25,7 @@ const Register = () => {
     if (success) {
       navigate('/');
     } else {
-      setError('Email already in use');
+      setError('Este e-mail já está em uso.');
     }
   };
 
@@ -70,7 +70,7 @@ const Register = () => {
                 className="input-field"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder="seu@email.com"
               />
             </div>
             
