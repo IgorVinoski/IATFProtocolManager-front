@@ -76,7 +76,7 @@ const AnimalRegistration = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/animals/${id}`);
     fetchAnimals();
   };
 
