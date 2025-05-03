@@ -13,7 +13,7 @@ type Animal = {
   imageUrl?: string;
 };
 
-const API_URL = 'http://localhost:3000/api/animals'; // Altere se necessário
+const API_URL = import.meta.env.VITE_ENDERECO_API; 
 
 const AnimalRegistration = () => {
   const [animals, setAnimals] = useState<Animal[]>([]);

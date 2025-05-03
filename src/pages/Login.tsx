@@ -15,7 +15,7 @@ const Login = () => {
     setError('');
     
     if (!email || !password) {
-      setError('Please fill in all fields');
+      setError('Preencha todos os campos');
       return;
     }
     
@@ -23,7 +23,7 @@ const Login = () => {
     if (success) {
       navigate('/');
     } else {
-      setError('Invalid email or password');
+      setError('Senha ou e-mail inválidos.');
     }
   };
 
@@ -37,7 +37,7 @@ const Login = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">IATF Protocol Manager</h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <p className="mt-2 text-gray-600">Entre em sua conta</p>
         </div>
         
         <div className="bg-white p-8 rounded-lg shadow-md">
@@ -49,7 +49,7 @@ const Login = () => {
           
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">E-mail</label>
               <input
                 id="email"
                 type="email"
@@ -62,7 +62,7 @@ const Login = () => {
             
             <div className="form-group">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="form-label">Password</label>
+                <label htmlFor="password" className="form-label">Senha</label>
                 <button type="button" className="text-sm text-blue-600 hover:text-blue-800">
                   Forgot password?
                 </button>
@@ -84,9 +84,9 @@ const Login = () => {
           
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Não tem uma conta?{' '}
               <Link to="/register" className="text-blue-600 hover:text-blue-800">
-                Register now
+                Registre-se agora
               </Link>
             </p>
           </div>

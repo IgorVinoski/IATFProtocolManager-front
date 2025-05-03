@@ -17,7 +17,7 @@ const Register = () => {
     setError('');
     
     if (!name || !email || !password || !role) {
-      setError('Please fill in all fields');
+      setError('Preencha todos os campos!');
       return;
     }
     
@@ -39,7 +39,7 @@ const Register = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">IATF Protocol Manager</h1>
-          <p className="mt-2 text-gray-600">Create your account</p>
+          <p className="mt-2 text-gray-600">Crie sua conta! Relaxa. Isso não é armazenado em banco, é só pra testes.</p>
         </div>
         
         <div className="bg-white p-8 rounded-lg shadow-md">
@@ -51,7 +51,7 @@ const Register = () => {
           
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="name" className="form-label">Full Name</label>
+              <label htmlFor="name" className="form-label">Nome completo</label>
               <input
                 id="name"
                 type="text"
@@ -63,7 +63,7 @@ const Register = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">E-mail</label>
               <input
                 id="email"
                 type="email"
@@ -75,7 +75,7 @@ const Register = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">Senha</label>
               <input
                 id="password"
                 type="password"
@@ -87,16 +87,16 @@ const Register = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="role" className="form-label">Role</label>
+              <label htmlFor="role" className="form-label">Cargo</label>
               <select
                 id="role"
                 className="input-field"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
               >
-                <option value="Veterinarian">Veterinarian</option>
-                <option value="Technician">Technician</option>
-                <option value="Rural Producer">Rural Producer</option>
+                <option value="Veterinarian">Veterinário</option>
+                <option value="Technician">Técnico</option>
+                <option value="Rural Producer">Produtor rural</option>
               </select>
             </div>
             
