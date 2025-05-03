@@ -31,7 +31,7 @@ const AnimalRegistration = () => {
   const [editingId, setEditingId] = useState('');
 
   const fetchAnimals = async () => {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(`${API_URL}/animals`);
     setAnimals(response.data);
   };
 
