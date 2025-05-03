@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ChartBar, CalendarDays, Squircle, LayoutDashboard, ListChecks } from 'lucide-react';
+import { CalendarDays, Squircle, LayoutDashboard, ListChecks } from 'lucide-react';
 
 const Sidebar = () => {
   return (

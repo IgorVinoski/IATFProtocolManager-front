@@ -40,40 +40,38 @@ const Monitoring = () => {
         day9or10.setDate(startDate.getDate() + 9);
         const day10or11 = new Date(startDate);
         day10or11.setDate(startDate.getDate() + 10);
-
-        acc.push(
-          {
-            start: day0,
-            end: day0,
-            title: `"${protocol.name}" - Dia 0`,
-            allDay: true,
-            resource: { protocolId: protocol.id, step: 'Dia 0' },
-          },
-          {
-            start: day7or8,
-            end: day7or8,
-            title: `"${protocol.name}" - Dia 7/8`,
-            allDay: true,
-            resource: { protocolId: protocol.id, step: 'Dia 7/8' },
-          },
-          {
-            start: day9or10,
-            end: day9or10,
-            title: `"${protocol.name}" - Dia 9/10`,
-            allDay: true,
-            resource: { protocolId: protocol.id, step: 'Dia 9/10' },
-          },
-          {
-            start: day10or11,
-            end: day10or11,
-            title: `"${protocol.name}" - IATF`,
-            allDay: true,
-            resource: { protocolId: protocol.id, step: 'IATF' },
-          }
-        );
+  
+        acc.push({
+          start: day0 as Date,
+          end: day0 as Date,
+          title: `"${protocol.name}" - Dia 0`,
+          allDay: true,
+          resource: { protocolId: protocol.id, step: 'Dia 0' },
+        } as CalendarEvent);
+        acc.push({
+          start: day7or8 as Date,
+          end: day7or8 as Date,
+          title: `"${protocol.name}" - Dia 7/8`,
+          allDay: true,
+          resource: { protocolId: protocol.id, step: 'Dia 7/8' },
+        } as CalendarEvent);
+        acc.push({
+          start: day9or10 as Date,
+          end: day9or10 as Date,
+          title: `"${protocol.name}" - Dia 9/10`,
+          allDay: true,
+          resource: { protocolId: protocol.id, step: 'Dia 9/10' },
+        } as CalendarEvent);
+        acc.push({
+          start: day10or11 as Date,
+          end: day10or11 as Date,
+          title: `"${protocol.name}" - IATF`,
+          allDay: true,
+          resource: { protocolId: protocol.id, step: 'IATF' },
+        } as CalendarEvent);
       }
       return acc;
-    }, []);
+    }, [] as CalendarEvent[]); // Defina o tipo inicial do array como CalendarEvent[]
     setCalendarEvents(events);
   }, [protocols]);
 

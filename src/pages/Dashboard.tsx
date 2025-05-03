@@ -8,13 +8,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Cell,
   ResponsiveContainer
 } from 'recharts';
 import { Bell, CalendarDays, Squircle, Users } from 'lucide-react';
 import axios from 'axios';
 
-const colors = ['#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
 
 interface ProtocolEvent {
   name: string;
@@ -230,8 +228,8 @@ const Dashboard = () => {
                 dataKey="value"
                 label
               >
-                {pregnancySuccessRate.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                {pregnancySuccessRate.map((_, index) => (
+                  <div key={index}></div>
                 ))}
               </Pie>
               <Tooltip />
