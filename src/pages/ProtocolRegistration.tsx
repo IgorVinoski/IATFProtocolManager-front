@@ -176,7 +176,7 @@ const ProtocolRegistration = () => {
       {showForm && (
         <div className="card">
           <h2 className="text-xl font-semibold mb-4">
-            {isEditing ? 'Edit Protocol' : 'Register New Protocol'}
+            {isEditing ? 'Editar protocolo' : 'Registrar um novo protocolo'}
           </h2>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
