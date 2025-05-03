@@ -213,7 +213,7 @@ const ProtocolRegistration = () => {
               </div>
 
               <div>
-                <label className="form-label">Bull</label>
+                <label className="form-label">Touro</label>
                 <input
                   type="text"
                   className="input-field"
@@ -274,7 +274,7 @@ const ProtocolRegistration = () => {
 
             <div className="flex gap-3 mt-6">
               <button type="submit" className="btn btn-primary">
-                {isEditing ? 'Update Protocol' : 'Save Protocol'}
+                {isEditing ? 'Atualizar protocolo' : 'Salvar protocolo'}
               </button>
               <button
                 type="button"
