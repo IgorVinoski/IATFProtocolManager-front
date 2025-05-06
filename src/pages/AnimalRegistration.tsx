@@ -55,6 +55,7 @@ const AnimalRegistration = () => {
     if (isEditing) {
       await axios.put(`${API_URL}/animals/${editingId}`, newAnimal);
     } else {
+      console.log('O new animal ', newAnimal);
       await axios.post(`${API_URL}/animals/`, newAnimal);
     }
 
