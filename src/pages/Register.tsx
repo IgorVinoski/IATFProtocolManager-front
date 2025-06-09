@@ -1,3 +1,4 @@
+// src/pages/Register.tsx
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Cat } from 'lucide-react';
@@ -12,20 +13,20 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => { // Tornar assíncrono
     e.preventDefault();
     setError('');
-    
+
     if (!name || !email || !password || !role) {
       setError('Preencha todos os campos!');
       return;
     }
-    
-    const success = register({ name, email, password, role });
+
+    const success = await register({ name, email, password, role }); // Aguardar o resultado da Promise
     if (success) {
       navigate('/');
     } else {
-      setError('Este e-mail já está em uso.');
+      setError('Este e-mail já está em uso ou ocorreu um erro no registro.');
     }
   };
 
@@ -39,16 +40,16 @@ const Register = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">IATF Protocol Manager</h1>
-          <p className="mt-2 text-gray-600">Crie sua conta! Relaxa. Isso não é armazenado em banco, é só pra testes.</p>
+          <p className="mt-2 text-gray-600">Crie sua conta!</p> {/* Removi a mensagem "não é armazenado em banco" */}
         </div>
-        
+
         <div className="bg-white p-8 rounded-lg shadow-md">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name" className="form-label">Nome completo</label>
@@ -61,7 +62,7 @@ const Register = () => {
                 placeholder="John Doe"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="email" className="form-label">E-mail</label>
               <input
@@ -73,7 +74,7 @@ const Register = () => {
                 placeholder="seu@email.com"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password" className="form-label">Senha</label>
               <input
@@ -85,7 +86,7 @@ const Register = () => {
                 placeholder="••••••••"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="role" className="form-label">Cargo</label>
               <select
@@ -99,12 +100,12 @@ const Register = () => {
                 <option value="Rural Producer">Produtor rural</option>
               </select>
             </div>
-            
+
             <button type="submit" className="w-full btn btn-primary mt-6">
-              Register
+              Registrar
             </button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Já tem uma conta?{' '}

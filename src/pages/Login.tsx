@@ -1,3 +1,4 @@
+// src/pages/Login.tsx
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Squircle } from 'lucide-react';
@@ -10,16 +11,16 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => { // Tornar assíncrono
     e.preventDefault();
     setError('');
-    
+
     if (!email || !password) {
       setError('Preencha todos os campos');
       return;
     }
-    
-    const success = login(email, password);
+
+    const success = await login(email, password); // Aguardar o resultado da Promise
     if (success) {
       navigate('/');
     } else {
@@ -39,14 +40,14 @@ const Login = () => {
           <h1 className="text-2xl font-bold text-gray-900">IATF Protocol Manager</h1>
           <p className="mt-2 text-gray-600">Entre em sua conta</p>
         </div>
-        
+
         <div className="bg-white p-8 rounded-lg shadow-md">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="email" className="form-label">E-mail</label>
@@ -59,7 +60,7 @@ const Login = () => {
                 placeholder="seu@email.com"
               />
             </div>
-            
+
             <div className="form-group">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="form-label">Senha</label>
@@ -76,12 +77,12 @@ const Login = () => {
                 placeholder="••••••••"
               />
             </div>
-            
+
             <button type="submit" className="w-full btn btn-primary mt-6">
               Entrar
             </button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Não tem uma conta?{' '}

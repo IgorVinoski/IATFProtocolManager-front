@@ -13,7 +13,8 @@ import {
 } from 'recharts';
 import { Bell, CalendarDays, Squircle, Users } from 'lucide-react';
 import axios from 'axios';
-
+import { useAuth } from '../context/AuthContext'; // Importe o hook de autenticação
+import { useNavigate } from 'react-router-dom'; // Para redirecionar em caso de erro de autenticação
 
 interface ProtocolEvent {
   name: string;
@@ -54,17 +55,55 @@ interface ProtocolStatsResponse {
   stats: ProtocolStatsItem[];
 }
 
+const API_URL = import.meta.env.VITE_ENDERECO_API; // Pegue a URL base da API
+
 const Dashboard = () => {
+  const { token, logout } = useAuth(); // Obtenha o token e a função de logout do contexto de autenticação
+  const navigate = useNavigate(); // Hook para navegação
+
   const [animals, setAnimals] = useState<any[]>([]);
   const [protocols, setProtocols] = useState<ProtocolData[]>([]);
   const [pregnancySuccessRate, setPregnancySuccessRate] = useState<any[]>([]);
   const [pregnancyRateByProtocol, setPregnancyRateByProtocol] = useState<any[]>([]);
   const [nearbyEventsCount, setNearbyEventsCount] = useState(0);
+  const [loading, setLoading] = useState(true); // Novo estado para controlar o carregamento
+  const [error, setError] = useState<string | null>(null); // Novo estado para exibir erros
 
-  const url = import.meta.env.VITE_ENDERECO_API;
+  // Configura uma instância do Axios com o token de autorização
+  // Isso evita repetir o header 'Authorization' em cada requisição
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      // Adiciona o token no cabeçalho Authorization se ele existir
+      'Authorization': token ? `Bearer ${token}` : '',
+    },
+  });
+
+  // Interceptor para lidar com erros de autenticação/autorização
+  axiosInstance.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        console.error("Erro de autenticação/autorização no Dashboard:", error.response.data.message);
+        setError("Sua sessão expirou ou você não tem permissão para acessar este conteúdo. Por favor, faça login novamente.");
+        logout(); // Limpa a sessão no frontend
+        navigate('/login'); // Redireciona para a página de login
+      }
+      return Promise.reject(error);
+    }
+  );
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) {
+        // Se não houver token, redireciona para o login (caso o ProtectedRoute não tenha feito)
+        navigate('/login');
+        return;
+      }
+
+      setLoading(true);
+      setError(null); // Limpa erros anteriores
       try {
         const [
           animalRes,
@@ -72,10 +111,11 @@ const Dashboard = () => {
           animalStatsRes,
           protocolStatsRes,
         ] = await Promise.all([
-          axios.get<any[]>(`${url}/animals`),
-          axios.get<ProtocolData[]>(`${url}/protocols`),
-          axios.get<AnimalStatsData>(`${url}/animals/stats`),
-          axios.get<ProtocolStatsResponse>(`${url}/protocols/stats`),
+          // Use axiosInstance para todas as requisições que precisam de autenticação
+          axiosInstance.get<any[]>('/animals'),
+          axiosInstance.get<ProtocolData[]>('/protocols'),
+          axiosInstance.get<AnimalStatsData>('/animals/stats'),
+          axiosInstance.get<ProtocolStatsResponse>('/protocols/stats'),
         ]);
 
         setAnimals(animalRes.data);
@@ -85,8 +125,8 @@ const Dashboard = () => {
         const naoPrenhas = total_animals - pregnant_animals;
 
         setPregnancySuccessRate([
-          { name: 'Prenhas', value: pregnant_animals,  color: '#82ca9d'  },
-          { name: 'Não Prenhas', value: naoPrenhas, color: '#d9534f'   },
+          { name: 'Prenhas', value: pregnant_animals, color: '#82ca9d' },
+          { name: 'Não Prenhas', value: naoPrenhas, color: '#d9534f' },
         ]);
 
         const barData = protocolStatsRes.data.stats.map((protocol) => {
@@ -98,13 +138,21 @@ const Dashboard = () => {
         setPregnancyRateByProtocol(barData);
 
         calculateNearbyEvents(protocolRes.data);
-      } catch (error) {
-        console.error('Erro ao buscar dados da API:', error);
+      } catch (err: any) {
+        console.error('Erro ao buscar dados da API para o Dashboard:', err);
+        // O interceptor já trata 401/403. Para outros erros, exibe uma mensagem genérica.
+        if (err.response && err.response.data && err.response.data.message) {
+            setError(`Falha ao carregar dados: ${err.response.data.message}`);
+        } else {
+            setError("Não foi possível carregar os dados do dashboard. Tente novamente mais tarde.");
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [url]);
+  }, [token, navigate]); // Dependência do token e navigate
 
   const calculateNearbyEvents = (protocolsData: ProtocolData[]) => {
     const today = new Date();
@@ -159,13 +207,28 @@ const Dashboard = () => {
     setNearbyEventsCount(totalNearbyEvents);
   };
 
+  if (loading) {
+    return <div className="p-6 text-center text-gray-600">Carregando dados do Dashboard...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        <p>{error}</p>
+        <button onClick={() => navigate('/login')} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Voltar para o Login
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
 
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card">
+        <div className="card bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-teal-100 rounded-full">
               <Squircle size={24} className="text-teal-600" />
@@ -177,7 +240,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-100 rounded-full">
               <Users size={24} className="text-blue-600" />
@@ -189,7 +252,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-indigo-100 rounded-full">
               <CalendarDays size={24} className="text-indigo-600" />
@@ -201,7 +264,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-purple-100 rounded-full">
               <Bell size={24} className="text-purple-600" />
@@ -217,29 +280,29 @@ const Dashboard = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pizza */}
-        <div className="card h-80">
+        <div className="card h-80 bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">Taxa de Sucesso de Prenhez</h2>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-            <Pie
-  data={pregnancySuccessRate}
-  cx="50%"
-  cy="50%"
-  outerRadius={80}
-  dataKey="value"
-  label
->
-  {pregnancySuccessRate.map((entry, index) => (
-    <Cell key={`cell-${index}`} fill={entry.color} />
-  ))}
-</Pie>
+              <Pie
+                data={pregnancySuccessRate}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                dataKey="value"
+                label
+              >
+                {pregnancySuccessRate.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
         {/* Barras */}
-        <div className="card h-80">
+        <div className="card h-80 bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">Taxa de Prenhez por Protocolo</h2>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={pregnancyRateByProtocol}>

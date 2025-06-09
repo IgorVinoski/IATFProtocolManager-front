@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Plus, Search, X } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // Importe o hook de autenticação
+import { useNavigate } from 'react-router-dom'; // Para redirecionar em caso de erro de autenticação
 
 type Animal = {
   id: string;
@@ -13,9 +15,12 @@ type Animal = {
   imageUrl?: string;
 };
 
-const API_URL = import.meta.env.VITE_ENDERECO_API; 
+const API_URL = import.meta.env.VITE_ENDERECO_API;
 
 const AnimalRegistration = () => {
+  const { token, logout, user } = useAuth(); // Obtenha o token, função de logout e dados do usuário
+  const navigate = useNavigate(); // Hook para navegação
+
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,20 +34,59 @@ const AnimalRegistration = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState('');
+  const [error, setError] = useState<string | null>(null); // Novo estado para erros
+
+  // Configura uma instância do Axios com o token de autorização
+  // Isso evita repetir o header 'Authorization' em cada requisição
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`, // Adiciona o token aqui!
+    },
+  });
+
+  // Interceptor para lidar com erros de autenticação
+  axiosInstance.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        console.error("Erro de autenticação/autorização:", error.response.data.message);
+        setError("Sua sessão expirou ou você não tem permissão. Por favor, faça login novamente.");
+        logout(); // Limpa a sessão no frontend
+        navigate('/login'); // Redireciona para a página de login
+      }
+      return Promise.reject(error);
+    }
+  );
 
   const fetchAnimals = async () => {
-    const response = await axios.get(`${API_URL}/animals`);
-    setAnimals(response.data);
+    try {
+      const response = await axiosInstance.get('/animals'); // Usa a instância configurada
+      setAnimals(response.data);
+      setError(null); // Limpa erros anteriores
+    } catch (err) {
+      console.error('Erro ao buscar animais:', err);
+      // O interceptor já trata 401/403, outros erros podem ser tratados aqui se necessário
+    }
   };
 
   useEffect(() => {
-    fetchAnimals();
-  }, []);
+    // Só tenta buscar animais se houver um token
+    if (token) {
+      fetchAnimals();
+    } else {
+      // Se não houver token, o ProtectedRoute já deveria ter redirecionado para o login.
+      // Ou, se a página for acessada diretamente, o fetch falharia e o interceptor agiria.
+      console.warn("Nenhum token encontrado, não é possível buscar animais.");
+    }
+  }, [token]); // Dependência do token para re-fetch se o token mudar
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError(null); // Limpa erros antes de uma nova tentativa
 
-    const newAnimal = {
+    const animalData = {
       tagNumber,
       name,
       breed,
@@ -52,18 +96,30 @@ const AnimalRegistration = () => {
       imageUrl: imageUrl || undefined,
     };
 
-    if (isEditing) {
-      await axios.put(`${API_URL}/animals/${editingId}`, newAnimal);
-    } else {
-      console.log('O new animal ', newAnimal);
-      await axios.post(`${API_URL}/animals/`, newAnimal);
+    try {
+      if (isEditing) {
+        await axiosInstance.put(`/animals/${editingId}`, animalData); // Usa a instância configurada
+      } else {
+        await axiosInstance.post('/animals/', animalData); // Usa a instância configurada
+      }
+      resetForm();
+      fetchAnimals(); // Atualiza a lista após sucesso
+    } catch (err: any) {
+      console.error('Erro ao salvar animal:', err);
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Erro ao salvar: ${err.response.data.message}`);
+      } else {
+        setError('Ocorreu um erro ao salvar o animal.');
+      }
     }
-
-    resetForm();
-    fetchAnimals();
   };
 
   const handleEdit = (animal: Animal) => {
+    // Verifica a permissão antes de permitir a edição
+    if (user?.role !== 'Veterinarian' && user?.role !== 'Technician') {
+        setError('Você não tem permissão para editar animais.');
+        return;
+    }
     setTagNumber(animal.tagNumber);
     setName(animal.name);
     setBreed(animal.breed);
@@ -74,11 +130,27 @@ const AnimalRegistration = () => {
     setIsEditing(true);
     setEditingId(animal.id);
     setShowForm(true);
+    setError(null); // Limpa erros ao abrir o formulário para edição
   };
 
   const handleDelete = async (id: string) => {
-    await axios.delete(`${API_URL}/animals/${id}`);
-    fetchAnimals();
+    // Verifica a permissão antes de permitir a exclusão
+    if (user?.role !== 'Veterinarian') {
+        setError('Você não tem permissão para excluir animais.');
+        return;
+    }
+    try {
+      await axiosInstance.delete(`/animals/${id}`); // Usa a instância configurada
+      fetchAnimals(); // Atualiza a lista após sucesso
+      setError(null);
+    } catch (err: any) {
+      console.error('Erro ao excluir animal:', err);
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Erro ao excluir: ${err.response.data.message}`);
+      } else {
+        setError('Ocorreu um erro ao excluir o animal.');
+      }
+    }
   };
 
   const resetForm = () => {
@@ -92,10 +164,12 @@ const AnimalRegistration = () => {
     setIsEditing(false);
     setEditingId('');
     setShowForm(false);
+    setError(null); // Limpa erros ao fechar o formulário
   };
+
   const filteredAnimals = animals.filter(animal => {
     if (!animal) {
-      return false; 
+      return false;
     }
     return (
       (animal.name && typeof animal.name === 'string' && animal.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -104,21 +178,35 @@ const AnimalRegistration = () => {
     );
   });
 
+  const canCreateEdit = user?.role === 'Veterinarian' || user?.role === 'Technician';
+  const canDelete = user?.role === 'Veterinarian';
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold flex items-center gap-2">
-          {/* <Cow className="w-6 h-6" /> */}
           Cadastro de Animais
         </h2>
-        <button
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
-          onClick={() => setShowForm(true)}
-        >
-          <Plus className="w-5 h-5" />
-          Novo Animal
-        </button>
+        {/* Botão de Novo Animal visível apenas para Veterinários e Técnicos */}
+        {canCreateEdit && (
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+            onClick={() => { setShowForm(true); setError(null); }} // Limpa erros ao abrir o formulário
+          >
+            <Plus className="w-5 h-5" />
+            Novo Animal
+          </button>
+        )}
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm flex justify-between items-center">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       <div className="mb-4 relative">
         <Search className="absolute left-3 top-2.5 text-gray-400" />
@@ -132,6 +220,9 @@ const AnimalRegistration = () => {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredAnimals.length === 0 && !error && (
+          <p className="col-span-full text-center text-gray-600">Nenhum animal encontrado.</p>
+        )}
         {filteredAnimals.map(animal => (
           <div
             key={animal.id}
@@ -155,15 +246,23 @@ const AnimalRegistration = () => {
               Histórico Reprodutivo: {animal.reproductiveHistory}
             </p>
             <div className="flex gap-2">
+              {/* Botão de Editar visível e clicável apenas para Veterinários e Técnicos */}
               <button
                 onClick={() => handleEdit(animal)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                className={`px-3 py-1 rounded text-sm ${
+                  canCreateEdit ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                disabled={!canCreateEdit}
               >
                 Editar
               </button>
+              {/* Botão de Excluir visível e clicável apenas para Veterinários */}
               <button
                 onClick={() => handleDelete(animal.id)}
-                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                className={`px-3 py-1 rounded text-sm ${
+                  canDelete ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                disabled={!canDelete}
               >
                 Excluir
               </button>
@@ -184,6 +283,12 @@ const AnimalRegistration = () => {
             <h2 className="text-xl font-bold mb-4">
               {isEditing ? 'Editar Animal' : 'Novo Animal'}
             </h2>
+            {/* Mensagem de erro específica para o formulário */}
+            {error && (
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                    {error}
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"

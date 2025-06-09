@@ -1,5 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Calendar, Check, Plus, Search } from 'lucide-react';
+import axios from 'axios'; // Import axios
+import { useAuth } from '../context/AuthContext'; // Import the AuthContext hook
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 
 type Animal = {
   id: string;
@@ -18,7 +21,12 @@ type Protocol = {
   notifications: boolean;
 };
 
+const API_URL = import.meta.env.VITE_ENDERECO_API; // Get the API base URL
+
 const ProtocolRegistration = () => {
+  const { token, logout } = useAuth(); // Get token and logout from AuthContext
+  const navigate = useNavigate(); // Hook for navigation
+
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -32,75 +40,120 @@ const ProtocolRegistration = () => {
   const [notifications, setNotifications] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState('');
+  const [loading, setLoading] = useState(true); // Add loading state
+  const [error, setError] = useState<string | null>(null); // Add error state
+
+  // Create an Axios instance with authorization header
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : '', // Attach token if available
+    },
+  });
+
+  // Add an interceptor to handle authentication errors
+  axiosInstance.interceptors.response.use(
+    response => response,
+    err => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        console.error("Authentication/Authorization error in ProtocolRegistration:", err.response.data.message);
+        setError("Sua sessão expirou ou você não tem permissão para acessar este conteúdo. Por favor, faça login novamente.");
+        logout(); // Clear frontend session
+        navigate('/login'); // Redirect to login page
+      }
+      return Promise.reject(err);
+    }
+  );
 
   useEffect(() => {
-    fetchProtocols();
-    fetchAnimals();
-  }, []);
-  
-  const url = import.meta.env.VITE_ENDERECO_API;
+    // Fetch protocols and animals on component mount
+    const fetchData = async () => {
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        await Promise.all([fetchProtocols(), fetchAnimals()]);
+      } catch (err: any) {
+        console.error('Error fetching initial data:', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          setError(`Falha ao carregar dados: ${err.response.data.message}`);
+        } else {
+          setError("Não foi possível carregar os dados de protocolos e animais. Tente novamente mais tarde.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [token, navigate]); // Depend on token and navigate
 
   const fetchProtocols = async () => {
     try {
-      const res = await fetch(`${url}/protocols`);
-      const data = await res.json();
-      console.log('o data ', data)
-      setProtocols(data);
-    } catch (err) {
-      console.error('Erro ao buscar protocolos:', err);
+      // Use axiosInstance for authenticated request
+      const res = await axiosInstance.get<Protocol[]>('/protocols');
+      setProtocols(res.data);
+    } catch (err: any ) {
+      console.error('Erro ao buscar protocolos:', err.response?.data || err.message);
+      // Error handled by interceptor or generic error state
+      throw err; // Re-throw to be caught by the parent fetchData
     }
   };
 
   const fetchAnimals = async () => {
     try {
-      const res = await fetch(`${url}/animals`);
-      const data = await res.json();
-      setAnimals(data);
-    } catch (err) {
-      console.error('Erro ao buscar animais:', err);
+      // Use axiosInstance for authenticated request
+      const res = await axiosInstance.get<Animal[]>('/animals');
+      setAnimals(res.data);
+    } catch (err: any) {
+      console.error('Erro ao buscar animais:', err.response?.data || err.message);
+      // Error handled by interceptor or generic error state
+      throw err; // Re-throw to be caught by the parent fetchData
     }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
+
+    // Simple validation for required fields
+    if (!name || !startDate || !hormones || !bull || selectedAnimals.length === 0) {
+      setError("Por favor, preencha todos os campos obrigatórios e selecione ao menos um animal.");
+      return;
+    }
 
     const payload = {
       name,
       startDate,
       hormones,
       bull,
-      animals: selectedAnimals,
+      animals: selectedAnimals.map(animal => animal.id), // Send only animal IDs to backend
       notifications,
     };
-    console.log('o payload ', payload)
+
     try {
       if (isEditing) {
-        await fetch(`${url}/protocols/${editingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        await axiosInstance.put(`/protocols/${editingId}`, payload);
       } else {
-        await fetch(`${url}/protocols`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        await axiosInstance.post('/protocols', payload);
       }
 
-      await fetchProtocols();
-      resetForm();
-    } catch (err) {
-      console.error('Erro ao salvar protocolo:', err);
+      await fetchProtocols(); // Refetch protocols to update the list
+      resetForm(); // Reset form fields
+    } catch (err: any) {
+      console.error('Erro ao salvar protocolo:', err.response?.data || err.message);
+      setError(`Falha ao salvar protocolo: ${err.response?.data?.message || 'Erro desconhecido.'}`);
     }
   };
 
   const handleEdit = (protocol: Protocol | undefined) => {
-    console.log("Protocolo para edição:", protocol);
-
     if (protocol) {
       setName(protocol.name);
-      const formattedDate = protocol.startDate ? protocol.startDate.substring(0, 10) : '';
+      // Format date to YYYY-MM-DD for input type="date"
+      const formattedDate = protocol.startDate ? new Date(protocol.startDate).toISOString().substring(0, 10) : '';
       setStartDate(formattedDate);
       setHormones(protocol.hormones);
       setBull(protocol.bull);
@@ -109,23 +162,22 @@ const ProtocolRegistration = () => {
       setIsEditing(true);
       setEditingId(protocol.id);
       setShowForm(true);
+      setError(null); // Clear any previous errors when opening for edit
     }
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Você tem certeza que deseja deletar este protocolo? Esta ação é irreversível.")) {
+      return;
+    }
+    setError(null); // Clear previous errors
     try {
-      const response = await fetch(`${url}/protocols/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        console.log(`Protocolo com ID ${id} deletado com sucesso.`);
-        await fetchProtocols(); 
-      } else {
-        console.error(`Erro ao deletar protocolo com ID ${id}:`, response.status);
-      }
-    } catch (err) {
-      console.error('Erro ao deletar protocolo:', err);
+      await axiosInstance.delete(`/protocols/${id}`);
+      console.log(`Protocolo com ID ${id} deletado com sucesso.`);
+      await fetchProtocols(); // Refetch protocols after deletion
+    } catch (err: any) {
+      console.error('Erro ao deletar protocolo:', err.response?.data || err.message);
+      setError(`Falha ao deletar protocolo: ${err.response?.data?.message || 'Erro desconhecido.'}`);
     }
   };
 
@@ -139,6 +191,7 @@ const ProtocolRegistration = () => {
     setIsEditing(false);
     setEditingId('');
     setShowForm(false);
+    setError(null); // Clear errors on form reset
   };
 
   const toggleAnimalSelection = (animalId: string) => {
@@ -160,13 +213,33 @@ const ProtocolRegistration = () => {
     (protocol.bull && typeof protocol.bull === 'string' && protocol.bull.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  if (loading) {
+    return <div className="p-6 text-center text-gray-600">Carregando dados de protocolos...</div>;
+  }
+
+  if (error && !showForm) { // Only show global error if form is not open
+    return (
+      <div className="p-6 text-center text-red-600">
+        <p>{error}</p>
+        <button onClick={() => navigate('/login')} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Voltar para o Login
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">IATF registro de protocolo</h1>
-        <button 
+        <h1 className="text-2xl font-bold text-gray-800">Registro de Protocolo IATF</h1>
+        <button
           className="btn btn-primary flex items-center gap-2"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm(!showForm);
+            if (!showForm) { // If opening the form, reset it
+              resetForm();
+            }
+          }}
         >
           <Plus size={18} />
           Novo protocolo
@@ -174,10 +247,15 @@ const ProtocolRegistration = () => {
       </div>
 
       {showForm && (
-        <div className="card">
+        <div className="card bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">
             {isEditing ? 'Editar protocolo' : 'Registrar um novo protocolo'}
           </h2>
+          {error && showForm && ( // Show error specifically for the form
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -242,7 +320,7 @@ const ProtocolRegistration = () => {
                           type="checkbox"
                           className="h-4 w-4 text-teal-600 rounded"
                           checked={selectedAnimals.some(a => a.id === animal.id)}
-                          onChange={() => {}}
+                          onChange={() => {}} // Empty onChange to allow click on div to toggle
                         />
                         <div className="ml-3">
                           <span className="font-medium text-gray-900">{animal.name}</span>
@@ -268,7 +346,7 @@ const ProtocolRegistration = () => {
                   checked={notifications}
                   onChange={(e) => setNotifications(e.target.checked)}
                 />
-                <span className="ml-2 text-gray-700">Notificação ativas</span>
+                <span className="ml-2 text-gray-700">Notificações ativas</span>
               </label>
             </div>
 
@@ -281,14 +359,14 @@ const ProtocolRegistration = () => {
                 className="btn btn-outline"
                 onClick={resetForm}
               >
-                Cancel
+                Cancelar
               </button>
             </div>
           </form>
         </div>
       )}
 
-<div className="mb-4 relative">
+      <div className="mb-4 relative">
         <Search className="absolute left-3 top-2.5 text-gray-400" />
         <input
           type="text"
@@ -299,7 +377,7 @@ const ProtocolRegistration = () => {
         />
       </div>
 
-      <div className="card overflow-hidden">
+      <div className="card bg-white rounded-lg shadow-md overflow-hidden">
         {filteredProtocols.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -354,7 +432,7 @@ const ProtocolRegistration = () => {
                         onClick={() => handleDelete(protocol.id)}
                         className="text-red-600 hover:text-red-900"
                       >
-                        Deleter
+                        Deletar
                       </button>
                     </td>
                   </tr>
