@@ -2,12 +2,13 @@ import { Bell, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
+import { Link } from 'react-router-dom'; // Import Link for navigation
 
 const Header = () => {
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(false);
-  const url = import.meta.env.VITE_ENDERECO_API;
+  const url = import.meta.env.VITE_ENDERECO_API || 'http://localhost:3000'; // Use fallback for URL
 
   useEffect(() => {
     fetchProtocolsAndCheckNotifications();
@@ -81,6 +82,14 @@ const Header = () => {
                   <p className="text-sm text-gray-600">{user?.role}</p>
                 </div>
                 <div className="p-2">
+                  {/* New "My Profile" Link */}
+                  <Link
+                    to="/profile"
+                    className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    onClick={() => setShowDropdown(false)} // Close dropdown after click
+                  >
+                    Meu Perfil
+                  </Link>
                   <button
                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
                     onClick={logout}
