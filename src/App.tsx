@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
@@ -7,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import AnimalRegistration from './pages/AnimalRegistration';
 import ProtocolRegistration from './pages/ProtocolRegistration';
+import ProfilePage from './pages/ProfilePage'; // Importe a nova página de perfil
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -36,9 +36,9 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="animals" element={<AnimalRegistration />} />
           <Route path="protocols" element={<ProtocolRegistration />} />
-          <Route path="Monitoring" element={<Monitoring />} />
-   {/* //       <Route path="/probability" element={<ProbabilitySimulator />} /> */}
-
+          <Route path="monitoring" element={<Monitoring />} />
+          {/* Adicione a rota para a página de perfil aqui */}
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

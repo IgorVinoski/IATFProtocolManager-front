@@ -116,7 +116,7 @@ const AnimalRegistration = () => {
 
   const handleEdit = (animal: Animal) => {
     // Verifica a permissão antes de permitir a edição
-    if (user?.role !== 'Veterinarian' && user?.role !== 'Technician') {
+    if (user?.role !== 'Veterinário' && user?.role !== 'Técnico') {
         setError('Você não tem permissão para editar animais.');
         return;
     }
@@ -135,7 +135,7 @@ const AnimalRegistration = () => {
 
   const handleDelete = async (id: string) => {
     // Verifica a permissão antes de permitir a exclusão
-    if (user?.role !== 'Veterinarian') {
+    if (user?.role !== 'Veterinário') {
         setError('Você não tem permissão para excluir animais.');
         return;
     }
@@ -178,8 +178,8 @@ const AnimalRegistration = () => {
     );
   });
 
-  const canCreateEdit = user?.role === 'Veterinarian' || user?.role === 'Technician';
-  const canDelete = user?.role === 'Veterinarian';
+  const canCreateEdit = user?.role === 'Veterinário' || user?.role === 'Técnico';
+  const canDelete = user?.role === 'Veterinário';
 
   return (
     <div className="p-6">

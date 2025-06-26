@@ -8,7 +8,7 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'Veterinarian' | 'Technician' | 'Rural Producer'>('Veterinarian');
+  const [role, setRole] = useState<'Veterinário' | 'Técnico' | 'Produtor Rural'>('Veterinário');
   const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -95,9 +95,9 @@ const Register = () => {
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
               >
-                <option value="Veterinarian">Veterinário</option>
-                <option value="Technician">Técnico</option>
-                <option value="Rural Producer">Produtor rural</option>
+                <option value="Veterinário">Veterinário</option>
+                <option value="Técnico">Técnico</option>
+                <option value="Produtor rural">Produtor rural</option>
               </select>
             </div>
 
