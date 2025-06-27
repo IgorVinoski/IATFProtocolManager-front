@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import axios from 'axios'; // Importe o Axios
-import { useAuth } from '../context/AuthContext'; // Importe o hook de autenticação
-import { useNavigate } from 'react-router-dom'; // Para redirecionar em caso de erro de autenticação
+import axios from 'axios'; 
+import { useAuth } from '../context/AuthContext'; 
+import { useNavigate } from 'react-router-dom';
 
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
@@ -13,7 +13,6 @@ type Protocol = {
   id: string;
   name: string;
   startDate: string;
-  // Adicione a data de remoção do implante se for relevante para os eventos do calendário
   implantRemovalDate?: string;
 };
 
@@ -25,35 +24,33 @@ interface CalendarEvent {
   resource?: any;
 }
 
-const API_URL = import.meta.env.VITE_ENDERECO_API; // Pegue a URL base da API
+const API_URL = import.meta.env.VITE_ENDERECO_API;
 
 const Monitoring = () => {
-  const { token, logout } = useAuth(); // Obtenha o token e a função de logout do contexto de autenticação
-  const navigate = useNavigate(); // Hook para navegação
+  const { token, logout } = useAuth(); 
+  const navigate = useNavigate(); 
 
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(true); // Novo estado para controlar o carregamento
-  const [error, setError] = useState<string | null>(null); // Novo estado para exibir erros
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<string | null>(null); 
 
-  // Configura uma instância do Axios com o token de autorização
   const axiosInstance = axios.create({
     baseURL: API_URL,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : '', // Adiciona o token aqui!
+      'Authorization': token ? `Bearer ${token}` : '', 
     },
   });
 
-  // Interceptor para lidar com erros de autenticação/autorização
   axiosInstance.interceptors.response.use(
     response => response,
     error => {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
         console.error("Erro de autenticação/autorização no Monitoramento:", error.response.data.message);
         setError("Sua sessão expirou ou você não tem permissão para acessar este conteúdo. Por favor, faça login novamente.");
-        logout(); // Limpa a sessão no frontend
-        navigate('/login'); // Redireciona para a página de login
+        logout(); 
+        navigate('/login'); 
       }
       return Promise.reject(error);
     }
@@ -62,20 +59,17 @@ const Monitoring = () => {
   useEffect(() => {
     const fetchProtocols = async () => {
       if (!token) {
-        // Se não houver token, redireciona para o login
         navigate('/login');
         return;
       }
 
       setLoading(true);
-      setError(null); // Limpa erros anteriores
+      setError(null); 
       try {
-        // Use axiosInstance para fazer a requisição autenticada
         const res = await axiosInstance.get<Protocol[]>('/protocols');
         setProtocols(res.data);
       } catch (err: any) {
         console.error('Erro ao buscar protocolos:', err);
-        // O interceptor já trata 401/403. Para outros erros, exibe uma mensagem genérica.
         if (err.response && err.response.data && err.response.data.message) {
             setError(`Falha ao carregar protocolos: ${err.response.data.message}`);
         } else {
@@ -87,7 +81,7 @@ const Monitoring = () => {
     };
 
     fetchProtocols();
-  }, [token, navigate]); // Dependência do token e navigate
+  }, [token, navigate]); 
 
   useEffect(() => {
     const events: CalendarEvent[] = protocols.reduce((acc, protocol) => {
@@ -182,7 +176,7 @@ const Monitoring = () => {
             endAccessor="end"
             titleAccessor="title"
             allDayAccessor="allDay"
-            style={{ height: 500 }} // Ajuste a altura conforme necessário
+            style={{ height: 500 }} 
             eventPropGetter={(event) => {
               let backgroundColor = '';
               if (event.title.includes('Dia 0')) backgroundColor = '#fcd34d'; // Amarelo

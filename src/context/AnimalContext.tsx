@@ -1,4 +1,3 @@
-// src/contexts/AnimalContext.tsx
 
 import { createContext, useContext, useState } from 'react';
 

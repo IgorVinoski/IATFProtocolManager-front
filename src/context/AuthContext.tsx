@@ -1,7 +1,5 @@
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
-// Define a URL base da API usando a variável de ambiente.
-// Inclua um fallback para desenvolvimento local se a variável não estiver definida.
 const API_BASE_URL = import.meta.env.VITE_ENDERECO_API || 'http://localhost:3000';
 
 interface User {
@@ -19,7 +17,6 @@ interface AuthContextType {
   register: (userData: { name: string; email: string; password: string; role: 'Veterinário' | 'Técnico' | 'Produtor Rural' }) => Promise<boolean>;
   logout: () => void;
   getUserRole: () => 'Veterinário' | 'Técnico' | 'Produtor Rural' | null;
-  // Nova função para atualizar os dados do usuário no contexto e localStorage
   updateUser: (updatedUserData: Partial<User>) => void;
 }
 
@@ -31,7 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Tenta carregar o token e o usuário do localStorage ao iniciar
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
@@ -43,10 +39,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Falha ao analisar usuário do localStorage. Limpando dados:", error);
-        logout(); // Limpa dados inválidos que podem estar corrompidos
+        logout();
       }
     }
-  }, []); // O array de dependências vazio garante que isso execute apenas uma vez ao montar
+  }, []); 
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -114,12 +110,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(false);
   };
 
-  // Nova função para atualizar os dados do usuário no contexto e localStorage
   const updateUser = (updatedUserData: Partial<User>) => {
     setUser((prevUser) => {
       if (prevUser) {
         const newUser = { ...prevUser, ...updatedUserData };
-        localStorage.setItem('user', JSON.stringify(newUser)); // Atualiza no localStorage
+        localStorage.setItem('user', JSON.stringify(newUser)); 
         return newUser;
       }
       return null;

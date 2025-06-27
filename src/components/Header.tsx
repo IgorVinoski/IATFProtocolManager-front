@@ -1,14 +1,18 @@
-import { Bell, UserRound } from 'lucide-react';
+import { Bell, UserRound, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { Link } from 'react-router-dom';
 
-const Header = () => {
+interface HeaderProps {
+  toggleSidebar: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(false);
-  const url = import.meta.env.VITE_ENDERECO_API || 'http://localhost:3000'; // Use fallback for URL
+  const url = import.meta.env.VITE_ENDERECO_API || 'http://localhost:3000';
 
   useEffect(() => {
     fetchProtocolsAndCheckNotifications();
@@ -54,9 +58,18 @@ const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
-        <div>
+        {/* Botão de hambúrguer e título da aplicação */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleSidebar}
+            className="lg:hidden p-2 rounded-md hover:bg-gray-100 text-gray-600"
+            aria-label="Toggle sidebar"
+          >
+            <Menu size={24} />
+          </button>
           <h1 className="text-xl font-bold text-teal-700">IATF Protocol Manager</h1>
         </div>
+        {/* Ícones de notificação e perfil do usuário */}
         <div className="flex items-center gap-4">
           <button className="relative p-2 rounded-full hover:bg-gray-100" aria-label="Notifications">
             <Bell size={20} className="text-gray-600" />
@@ -82,11 +95,10 @@ const Header = () => {
                   <p className="text-sm text-gray-600">{user?.role}</p>
                 </div>
                 <div className="p-2">
-                  {/* New "My Profile" Link */}
                   <Link
                     to="/profile"
                     className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                    onClick={() => setShowDropdown(false)} // Close dropdown after click
+                    onClick={() => setShowDropdown(false)}
                   >
                     Meu Perfil
                   </Link>

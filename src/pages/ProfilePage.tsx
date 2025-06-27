@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Check } from 'lucide-react';
 
 // Tipos de cargo (copiado do AuthContext para consistência)
-type UserRole = 'Veterinário' | 'Técnico' | 'Produtor Rural';
+type UserRole = 'Veterinário' | 'Técnico' | 'Produtor Rural' | 'Administrator';
 
 const ProfilePage = () => {
   const { user, token, updateUser, logout } = useAuth();

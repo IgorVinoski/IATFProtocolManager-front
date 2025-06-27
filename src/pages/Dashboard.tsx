@@ -13,8 +13,8 @@ import {
 } from 'recharts';
 import { Bell, CalendarDays, Squircle, Users } from 'lucide-react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext'; // Importe o hook de autenticação
-import { useNavigate } from 'react-router-dom'; // Para redirecionar em caso de erro de autenticação
+import { useAuth } from '../context/AuthContext'; 
+import { useNavigate } from 'react-router-dom'; 
 
 interface ProtocolEvent {
   name: string;
@@ -55,40 +55,36 @@ interface ProtocolStatsResponse {
   stats: ProtocolStatsItem[];
 }
 
-const API_URL = import.meta.env.VITE_ENDERECO_API; // Pegue a URL base da API
+const API_URL = import.meta.env.VITE_ENDERECO_API; 
 
 const Dashboard = () => {
-  const { token, logout } = useAuth(); // Obtenha o token e a função de logout do contexto de autenticação
-  const navigate = useNavigate(); // Hook para navegação
+  const { token, logout } = useAuth(); 
+  const navigate = useNavigate(); 
 
   const [animals, setAnimals] = useState<any[]>([]);
   const [protocols, setProtocols] = useState<ProtocolData[]>([]);
   const [pregnancySuccessRate, setPregnancySuccessRate] = useState<any[]>([]);
   const [pregnancyRateByProtocol, setPregnancyRateByProtocol] = useState<any[]>([]);
   const [nearbyEventsCount, setNearbyEventsCount] = useState(0);
-  const [loading, setLoading] = useState(true); // Novo estado para controlar o carregamento
-  const [error, setError] = useState<string | null>(null); // Novo estado para exibir erros
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<string | null>(null); 
 
-  // Configura uma instância do Axios com o token de autorização
-  // Isso evita repetir o header 'Authorization' em cada requisição
   const axiosInstance = axios.create({
     baseURL: API_URL,
     headers: {
       'Content-Type': 'application/json',
-      // Adiciona o token no cabeçalho Authorization se ele existir
       'Authorization': token ? `Bearer ${token}` : '',
     },
   });
 
-  // Interceptor para lidar com erros de autenticação/autorização
   axiosInstance.interceptors.response.use(
     response => response,
     error => {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
         console.error("Erro de autenticação/autorização no Dashboard:", error.response.data.message);
         setError("Sua sessão expirou ou você não tem permissão para acessar este conteúdo. Por favor, faça login novamente.");
-        logout(); // Limpa a sessão no frontend
-        navigate('/login'); // Redireciona para a página de login
+        logout(); 
+        navigate('/login'); 
       }
       return Promise.reject(error);
     }
@@ -97,13 +93,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!token) {
-        // Se não houver token, redireciona para o login (caso o ProtectedRoute não tenha feito)
         navigate('/login');
         return;
       }
 
       setLoading(true);
-      setError(null); // Limpa erros anteriores
+      setError(null);
       try {
         const [
           animalRes,
@@ -111,7 +106,6 @@ const Dashboard = () => {
           animalStatsRes,
           protocolStatsRes,
         ] = await Promise.all([
-          // Use axiosInstance para todas as requisições que precisam de autenticação
           axiosInstance.get<any[]>('/animals'),
           axiosInstance.get<ProtocolData[]>('/protocols'),
           axiosInstance.get<AnimalStatsData>('/animals/stats'),
@@ -140,7 +134,6 @@ const Dashboard = () => {
         calculateNearbyEvents(protocolRes.data);
       } catch (err: any) {
         console.error('Erro ao buscar dados da API para o Dashboard:', err);
-        // O interceptor já trata 401/403. Para outros erros, exibe uma mensagem genérica.
         if (err.response && err.response.data && err.response.data.message) {
             setError(`Falha ao carregar dados: ${err.response.data.message}`);
         } else {
@@ -152,7 +145,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [token, navigate]); // Dependência do token e navigate
+  }, [token, navigate]);
 
   const calculateNearbyEvents = (protocolsData: ProtocolData[]) => {
     const today = new Date();
@@ -280,10 +273,11 @@ const Dashboard = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pizza */}
-        <div className="card h-80 bg-white p-4 rounded-lg shadow-md">
+        {}
+        <div className="card h-[325px] lg:h-80 bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">Taxa de Sucesso de Prenhez</h2>
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart margin={{ bottom: 25 }}> {}
               <Pie
                 data={pregnancySuccessRate}
                 cx="50%"
@@ -302,10 +296,11 @@ const Dashboard = () => {
         </div>
 
         {/* Barras */}
-        <div className="card h-80 bg-white p-4 rounded-lg shadow-md">
+        {}
+        <div className="card h-[325px] lg:h-80 bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4 text-gray-700">Taxa de Prenhez por Protocolo</h2>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={pregnancyRateByProtocol}>
+            <BarChart margin={{ bottom: 25 }} data={pregnancyRateByProtocol}> {}
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis domain={[0, 100]} />
