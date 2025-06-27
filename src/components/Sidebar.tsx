@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom';
 import { CalendarDays, Squircle, LayoutDashboard, ListChecks, X, UserRound } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   isSidebarOpen: boolean;
