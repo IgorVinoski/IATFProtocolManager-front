@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import AnimalRegistration from './pages/AnimalRegistration';
 import ProtocolRegistration from './pages/ProtocolRegistration';
-import ProfilePage from './pages/ProfilePage'; // Importe a nova página de perfil
+import ProfilePage from './pages/ProfilePage'; 
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -37,7 +37,7 @@ function App() {
           <Route path="animals" element={<AnimalRegistration />} />
           <Route path="protocols" element={<ProtocolRegistration />} />
           <Route path="monitoring" element={<Monitoring />} />
-          {/* Adicione a rota para a página de perfil aqui */}
+          {}
           <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,4 +1,3 @@
-// src/pages/Login.tsx
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Squircle } from 'lucide-react';
@@ -11,7 +10,7 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => { // Tornar assíncrono
+  const handleSubmit = async (e: FormEvent) => { 
     e.preventDefault();
     setError('');
 
@@ -20,7 +19,7 @@ const Login = () => {
       return;
     }
 
-    const success = await login(email, password); // Aguardar o resultado da Promise
+    const success = await login(email, password); 
     if (success) {
       navigate('/');
     } else {

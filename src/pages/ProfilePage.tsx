@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { X, Check } from 'lucide-react';
 
-// Tipos de cargo (copiado do AuthContext para consistência)
 type UserRole = 'Veterinário' | 'Técnico' | 'Produtor Rural' | 'Administrator';
 
 const ProfilePage = () => {
@@ -15,7 +14,6 @@ const ProfilePage = () => {
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  // Adicione o estado para o cargo
   const [role, setRole] = useState<UserRole>(user?.role || 'Veterinário');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +24,7 @@ const ProfilePage = () => {
     } else {
       setName(user.name || '');
       setEmail(user.email || '');
-      setRole(user.role || 'Veterinário'); // Inicializa o cargo
+      setRole(user.role || 'Veterinário'); 
       setPassword('');
       setConfirmPassword('');
     }
@@ -51,7 +49,7 @@ const ProfilePage = () => {
       const body: { name: string; email: string; password?: string; role: UserRole } = {
         name,
         email,
-        role, // Inclua o cargo no corpo da requisição
+        role, 
       };
 
       if (password) {
@@ -73,10 +71,10 @@ const ProfilePage = () => {
       }
 
       const updatedUserData = await res.json();
-      updateUser({ // Atualiza o contexto AuthProvider com os novos dados
+      updateUser({
         name: updatedUserData.name,
         email: updatedUserData.email,
-        role: updatedUserData.role, // Atualize o cargo no contexto
+        role: updatedUserData.role, 
       });
 
       setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
@@ -150,7 +148,7 @@ const ProfilePage = () => {
               required
             />
           </div>
-          {/* Campo para alteração de cargo */}
+          {}
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700">
               Cargo
