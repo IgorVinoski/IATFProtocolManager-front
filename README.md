@@ -101,7 +101,7 @@ Para executar a aplicação front-end localmente, certifique-se de ter o [Node.j
 1.  Clone este repositório:
     ```bash
     git clone https://github.com/IgorVinoski/IATFProtocolManager-front
-    cd IATFProtocolManager
+    cd IATFProtocolManager-front
     ```
 2.  Instale as dependências:
     ```bash
