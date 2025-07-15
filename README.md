@@ -27,7 +27,6 @@ O front-end foi inicialmente prototipado utilizando o serviço de inteligência 
 * **React Big Calendar**: Componente de calendário de eventos (`react-big-calendar`).
 * **React Calendar**: Componente de calendário (`react-calendar`).
 * **React Datepicker**: Componente para seleção de datas (`react-datepicker`).
-* **Componentes React**: Utilização de componentes reutilizáveis para a interface.
 
 ### 📁 Estrutura de Pastas:
 
